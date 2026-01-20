@@ -1,0 +1,16 @@
+# CMake Build Artifacts
+build/
+out/
+CMakeSettings.json
+
+# Visual Studio / VS Code
+.vscode/
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.user
+
+# Windows System Files
+Thumbs.db
+Desktop.ini
