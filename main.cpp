@@ -5,6 +5,7 @@
 #include <chrono>
 #include <fstream>
 #include <sstream>
+#include <cstring> // Added for memcpy
 
 // --- Configuration ---
 const int WIDTH = 1024; // 1024x1024 Matrix
@@ -104,7 +105,6 @@ int main() {
 
     // Dispatch
     // We break the 1024x1024 grid into groups of 32x32 threads.
-    // 1024 / 32 = 32 groups.
     glDispatchCompute(WIDTH / 32, WIDTH / 32, 1);
     
     // Barrier
@@ -112,7 +112,7 @@ int main() {
 
     // Readback
     float* ptr = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-    memcpy(C_GPU.data(), ptr, SIZE * sizeof(float));
+    if (ptr) memcpy(C_GPU.data(), ptr, SIZE * sizeof(float));
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
     auto endGPU = std::chrono::high_resolution_clock::now();
@@ -122,7 +122,6 @@ int main() {
     // 5. Verification
     bool correct = true;
     for (int i = 0; i < SIZE; i++) {
-        // Use a slightly larger epsilon due to floating point accumulation diffs
         if (abs(C_CPU[i] - C_GPU[i]) > 0.1f) { 
             correct = false;
             std::cout << "Mismatch at " << i << " CPU:" << C_CPU[i] << " GPU:" << C_GPU[i] << std::endl;
